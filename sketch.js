@@ -64,8 +64,8 @@ function planetInitialSetup() {
     let mass = random(10, 10)
     let x = random(getPixelW(20), getPixelW(80))
     let y = random(getPixelH(20), getPixelH(80));
-    let vx = 0;
-    let vy = 0;
+    let vx = random(0, 100);
+    let vy = random(0, 100);
     let cl = color(random(200, 255), random(1,155), random(200, 210), 255)
     planets.push(new Planet(mass, x, y, vx, vy, cl))
   }
