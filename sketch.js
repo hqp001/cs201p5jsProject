@@ -1,31 +1,98 @@
-const planets = []
-const numPlanets = 100
-const G = 6.67 * Math.pow(10,0);
+let planets = []
+let numPlanets = 100
+let G = 6.67 * Math.pow(10,0)
 let timeLastFrame
+let resetButton
+let label
+let numPlanetsInput
+let gLabel
+let gSlider
 
 function gravityFormula(m1, m2, r) {
-  return (G * m1 * m2) / (r * r);
+  print(G)
+  return (G * m1 * m2) / (r * r)
 }
 
-function setup() {
-  createCanvas(windowWidth, windowHeight)
-  planets.push(new Planet(1000, 100, 500, 0, 0, color(255, 1, 1, 255)))
-  planets.push(new Planet(100, 800, 500, 0, 0, color(255, 1, 1, 255)))
-  planets.push(new Planet(100, 1000, 500, 0, 0, color(255, 1, 1, 255)))
+function createStartButton() {
+  resetButton = createButton('Start')
+  resetButton.position(getPixelW(1), getPixelH(3))
+  resetButton.mousePressed(restartSimulation)
+}
+
+function createLabelAndInput() {
+  label = createElement('label', 'Number of Small Planets:')
+  label.style('color', "yellow")
+  label.position(getPixelW(1), getPixelH(7))
+
+  numPlanetsInput = createInput(10)
+  numPlanetsInput.position(getPixelW(1),getPixelH(11))
+  numPlanetsInput.size(50)
+
+  gLabel = createElement('label', 'Gravitational Constant (G):')
+  gLabel.position(getPixelW(1), getPixelH(15))
+  gLabel.style('color', 'yellow')
+
+  // Slider for gravitational constant G
+  gSlider = createSlider(-11, 11, 0, 1)
+  gSlider.position(getPixelW(1), getPixelH(19))
+}
+
+function getIntInput(intInput) {
+  let inputVal = parseInt(intInput.value())
+  return isNaN(inputVal) ? 0 : inputVal
+}
+
+// Get pixel from percent of screen width
+function getPixelW(percent) {
+  return windowWidth * (percent / 100);
+}
+
+// Get pixel from percent of screen width
+function getPixelH(percent) {
+  return windowHeight * (percent / 100);
+}
+
+function planetInitialSetup() {
+  planets = []
+
+  planets.push(new Planet(1000, getPixelW(50), getPixelH(50), 0, 0, color(255, 1, 1, 255)))
+  planets.push(new Planet(100, getPixelW(30), getPixelH(30), 10, 1, color(255, 1, 1, 255)))
+  planets.push(new Planet(100, getPixelW(80), getPixelH(70), -20, 2, color(255, 1, 1, 255)))
 
 
   for (let i = 0; i < numPlanets; i++) {
     let mass = random(10, 10)
-    let x = random(800, 1000)
-    let y = 100;
+    let x = random(getPixelW(20), getPixelW(80))
+    let y = random(getPixelH(20), getPixelH(80));
     let vx = 0;
     let vy = 0;
     let cl = color(random(200, 255), random(1,155), random(200, 210), 255)
     planets.push(new Planet(mass, x, y, vx, vy, cl))
   }
+}
+
+function restartSimulation() {
+
+  // Rename button to restart
+  resetButton.html("Restart")
+
+  numPlanets = getIntInput(numPlanetsInput)
+
+  G = 6.67 * Math.pow(10, gSlider.value());
+
+  planetInitialSetup()
 
   // Start time
-  timeLastFrame = millis();
+  timeLastFrame = millis()
+
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight)
+
+  createStartButton()
+
+  createLabelAndInput();
 }
 
 function draw() {
@@ -34,6 +101,7 @@ function draw() {
   let currentTime = millis()
   let dt = (currentTime - timeLastFrame) / 10000;
   timeLastFrame = currentTime
+  dt = min(dt, 0.1)
 
   for (let i = 0; i < planets.length; i++) {
 
@@ -50,6 +118,10 @@ function draw() {
     planet.update(dt)
     planet.display()
   }
+
+  fill(255); // Set text color to white
+  textSize(16); // Set text size
+  text('Gravitational Constant G: ' + G, getPixelW(1), getPixelH(25));
 }
 
 class Planet {
